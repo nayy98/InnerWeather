@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Inner Weather</title>
-  <link rel="manifest" href="manifest.json" />
   <style>
     body {
       font-family: 'Helvetica Neue', sans-serif;
@@ -17,7 +16,7 @@
     }
 
     body.deep {
-      background: #0a0a0a;
+      background: radial-gradient(circle at center, #0a0a0a, #000022);
     }
 
     h1 {
@@ -84,20 +83,7 @@
 </head>
 <body>
   <h1>Inner Weather</h1>
-  <div class="slider-container" id="sliders">
-    <div class="slider-box"><label>joy</label><input type="range" min="0" max="100" value="50" id="joy" /></div>
-    <div class="slider-box"><label>grief</label><input type="range" min="0" max="100" value="50" id="grief" /></div>
-    <div class="slider-box"><label>anxiety</label><input type="range" min="0" max="100" value="50" id="anxiety" /></div>
-    <div class="slider-box"><label>desire</label><input type="range" min="0" max="100" value="50" id="desire" /></div>
-    <div class="slider-box"><label>love</label><input type="range" min="0" max="100" value="50" id="love" /></div>
-    <div class="slider-box"><label>anger</label><input type="range" min="0" max="100" value="50" id="anger" /></div>
-    <div class="slider-box"><label>wonder</label><input type="range" min="0" max="100" value="50" id="wonder" /></div>
-    <div class="slider-box"><label>emptiness</label><input type="range" min="0" max="100" value="50" id="emptiness" /></div>
-    <div class="slider-box"><label>clarity</label><input type="range" min="0" max="100" value="50" id="clarity" /></div>
-    <div class="slider-box"><label>longing</label><input type="range" min="0" max="100" value="50" id="longing" /></div>
-    <div class="slider-box"><label>shame</label><input type="range" min="0" max="100" value="50" id="shame" /></div>
-    <div class="slider-box"><label>peace</label><input type="range" min="0" max="100" value="50" id="peace" /></div>
-  </div>
+  <div class="slider-container" id="sliders"></div>
 
   <button onclick="generateWeather()">Generate Weather</button>
   <button onclick="resetSliders()">Reset</button>
@@ -106,63 +92,109 @@
 
   <div id="output"></div>
 
-  <canvas id="sigilCanvas" width="300" height="300"></canvas>
+  <canvas id="sigilCanvas" width="400" height="400"></canvas>
 
   <script>
     const emotions = ["joy", "grief", "anxiety", "desire", "love", "anger", "wonder", "emptiness", "clarity", "longing", "shame", "peace"];
+    const symbols = ["❤", "✴️", "❄️", "✨", "🌕", "⚡", "🌊", "☁️", "❤️‍🔥", "🌀", "🕊️", "🪐"];
+    let deepMode = false;
+    let selected = [];
+    let pulse = 0;
+    let frame = 0;
+
     const canvas = document.getElementById("sigilCanvas");
     const ctx = canvas.getContext("2d");
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    function toggleDeepMode() {
+      deepMode = !deepMode;
+      document.body.classList.toggle("deep");
+    }
+
+    function setupSliders() {
+      const container = document.getElementById("sliders");
+      emotions.forEach(emotion => {
+        const box = document.createElement("div");
+        box.className = "slider-box";
+        box.innerHTML = \`<label>\${emotion}</label><input type="range" min="0" max="100" value="50" id="\${emotion}" />\`;
+        container.appendChild(box);
+      });
+    }
 
     function generateWeather() {
-      const selected = emotions.filter(e => document.getElementById(e).value > 70);
-      const symbols = ["❤", "✴️", "❄️", "✨", "🌕", "⚡", "🌊", "☁️", "❤️‍🔥", "🌀", "🕊️", "🪐"];
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Sigil lines
-      ctx.strokeStyle = "#FFD700";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const radius = 100;
-      const points = [];
-
-      selected.forEach((e, i) => {
-        const angle = (2 * Math.PI / selected.length) * i;
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
-        points.push([x, y]);
-      });
-
-      points.forEach(([x, y], i) => {
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      if (points.length > 2) ctx.closePath();
-      ctx.stroke();
-
-      // Symbols
-      selected.forEach((e, i) => {
-        const angle = (2 * Math.PI / selected.length) * i;
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
-        ctx.font = "24px serif";
-        ctx.fillText(symbols[i % symbols.length], x, y);
-      });
-
-      document.getElementById("output").innerText = selected.length > 0 ?
-        `You are moved by ${selected.join(", ")}.` : "You are still, like calm water.";
+      selected = emotions.filter(e => document.getElementById(e).value > 70);
+      document.getElementById("output").innerText = selected.length > 0
+        ? \`You are moved by \${selected.join(", ")}.\`
+        : "You are still, like calm water.";
     }
 
     function resetSliders() {
       emotions.forEach(e => document.getElementById(e).value = 50);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      selected = [];
       document.getElementById("output").innerText = "";
     }
 
-    function toggleDeepMode() {
-      document.body.classList.toggle("deep");
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (selected.length === 0) return;
+
+      const radiusBase = 100;
+      const radiusPulse = deepMode ? radiusBase + Math.sin(pulse) * 10 : radiusBase;
+      const points = [];
+
+      for (let i = 0; i < selected.length; i++) {
+        const angle = (2 * Math.PI / selected.length) * i;
+        const x = centerX + radiusPulse * Math.cos(angle);
+        const y = centerY + radiusPulse * Math.sin(angle);
+        points.push([x, y]);
+      }
+
+      // draw sigil lines
+      if (points.length > 1) {
+        ctx.strokeStyle = "#FFD700";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(points[0][0], points[0][1]);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i][0], points[i][1]);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      // draw orb if deep mode
+      if (deepMode && points.length > 1) {
+        const orbIndex = frame % points.length;
+        const [x, y] = points[orbIndex];
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = "#FFDDEE";
+        ctx.shadowColor = "#FFDDEE";
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // draw emoji symbols
+      ctx.font = "24px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (let i = 0; i < points.length; i++) {
+        const [x, y] = points[i];
+        const size = deepMode ? 24 + Math.sin(frame / 10 + i) * 2 : 24;
+        ctx.font = size + "px serif";
+        ctx.fillStyle = "#FFD700";
+        ctx.fillText(symbols[i % symbols.length], x, y);
+      }
+
+      frame++;
+      pulse += 0.05;
+      requestAnimationFrame(draw);
     }
+
+    setupSliders();
+    draw();
   </script>
 </body>
 </html>
