@@ -159,7 +159,18 @@
     function generateMantra(values) {
       const highs = Object.entries(values).filter(([_, v]) => v > 60).map(([e]) => e);
       const lows = Object.entries(values).filter(([_, v]) => v < 40).map(([e]) => e);
-      const line = `You are held in the space between ${highs.join(", ")} and ${lows.join(", ")}.`;
+      let line = "";
+
+      if (highs.length && lows.length) {
+        line = `You are held in the space between ${highs.join(", ")} and ${lows.join(", ")}.`;
+      } else if (highs.length) {
+        line = `You are moved by ${highs.join(", ")}.`;
+      } else if (lows.length) {
+        line = `You are resting beneath ${lows.join(", ")}.`;
+      } else {
+        line = "You are in a space of stillness.";
+      }
+
       document.getElementById("mantra").textContent = line;
     }
 
