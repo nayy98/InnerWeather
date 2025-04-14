@@ -1,12 +1,167 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Inner Weather</title>
+  <meta name="theme-color" content="#FFD700">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json" />
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #FFD700;
+      font-family: 'Verdana', sans-serif;
+      text-align: center;
+      overflow: hidden;
+    }
+    h1 {
+      margin-top: 2rem;
+    }
+    .slider-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      padding: 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .slider-box {
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 10px;
+      padding: 0.5rem;
+    }
+    .slider-box label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+    }
+    .slider-box input[type="range"] {
+      width: 100%;
+    }
+    button {
+      margin-top: 1.2rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      background: #FFD700;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #mantra {
+      margin-top: 2rem;
+      font-style: italic;
+      opacity: 0.9;
+    }
+    canvas {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 2;
+    }
+  </style>
 </head>
-<body style="background:#000;color:#FFD700;text-align:center;">
+<body>
   <h1>Inner Weather</h1>
-  <p>This is a placeholder for the full experience. Ritual system coming soon.</p>
+  <div class="slider-container" id="sliders"></div>
+  <button onclick="generateWeather()">Generate Weather</button>
+  <button onclick="resetSliders()">Reset</button>
+  <div id="mantra"></div>
+  <canvas id="sigilCanvas" width="300" height="300"></canvas>
+
+  <script>
+    const emotions = [
+      "joy", "grief", "anxiety", "desire", "love", "anger",
+      "wonder", "emptiness", "clarity", "longing", "shame", "peace"
+    ];
+
+    const sliderValues = {};
+
+    const sliderContainer = document.getElementById("sliders");
+    emotions.forEach(emotion => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "slider-box";
+      wrapper.innerHTML = `
+        <label>${emotion}</label>
+        <input type="range" min="0" max="100" value="50" id="${emotion}" />
+      `;
+      sliderContainer.appendChild(wrapper);
+    });
+
+    function generateWeather() {
+      const values = {};
+      emotions.forEach(emotion => {
+        const val = parseInt(document.getElementById(emotion).value);
+        values[emotion] = val;
+      });
+      drawSigil(values);
+      generateMantra(values);
+    }
+
+    function resetSliders() {
+      emotions.forEach(emotion => {
+        document.getElementById(emotion).value = 50;
+      });
+      document.getElementById("mantra").textContent = "";
+      const ctx = document.getElementById("sigilCanvas").getContext("2d");
+      ctx.clearRect(0, 0, 300, 300);
+    }
+
+    function generateMantra(values) {
+      const highs = Object.entries(values).filter(([_, v]) => v > 60).map(([e]) => e);
+      const lows = Object.entries(values).filter(([_, v]) => v < 40).map(([e]) => e);
+      const line = `You are held in the space between ${highs.join(", ")} and ${lows.join(", ")}.`;
+      document.getElementById("mantra").textContent = line;
+    }
+
+    function drawSigil(emotions) {
+      const canvas = document.getElementById("sigilCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, 300, 300);
+      const cx = 150, cy = 150;
+      const actives = Object.entries(emotions).filter(([_, v]) => v > 60);
+      const count = actives.length;
+      const radius = 80;
+      const step = (Math.PI * 2) / count;
+      ctx.strokeStyle = "#FFD700";
+      ctx.beginPath();
+      for (let i = 0; i < count; i++) {
+        const angle = step * i;
+        const x = cx + Math.cos(angle) * radius;
+        const y = cy + Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
+      const emojiMap = {
+        joy: "☀️", grief: "💧", anxiety: "⚡", desire: "🔥", love: "💗", anger: "🔺",
+        wonder: "🌠", emptiness: "🕳️", clarity: "🧭", longing: "🌙", shame: "🩸", peace: "🕊️"
+      };
+
+      ctx.font = "20px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      actives.forEach(([emotion], i) => {
+        const angle = i * step - Math.PI / 2;
+        const x = cx + Math.cos(angle) * (radius + 25);
+        const y = cy + Math.sin(angle) * (radius + 25);
+        ctx.fillText(emojiMap[emotion] || "◯", x, y);
+      });
+    }
+  </script>
 </body>
 </html>
