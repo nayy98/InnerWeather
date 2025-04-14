@@ -3,220 +3,133 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Inner Weather</title>
-  <meta name="theme-color" content="#FFD700">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="manifest" href="manifest.json" />
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
   <style>
     body {
-      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
       background: #000;
       color: #FFD700;
-      font-family: 'Verdana', sans-serif;
+      margin: 0;
+      padding: 0;
       text-align: center;
-      overflow: hidden;
-      transition: background 1.5s ease;
     }
+
     h1 {
-      margin-top: 2rem;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
+      font-size: 2.5em;
+      margin: 1em 0 0.5em;
     }
+
     .slider-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 12px;
-      padding: 1rem;
-      max-width: 700px;
-      margin: 0 auto;
-      opacity: 0;
-      animation: fadeIn 3s ease forwards;
-      animation-delay: 2s;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px;
+      gap: 10px;
     }
+
     .slider-box {
-      background: rgba(255, 215, 0, 0.1);
+      background: #222;
       border-radius: 10px;
-      padding: 0.5rem;
+      padding: 10px;
+      width: 100px;
     }
+
     .slider-box label {
       display: block;
-      margin-bottom: 0.3rem;
-      font-size: 0.9rem;
+      margin-bottom: 5px;
     }
-    .slider-box input[type="range"] {
+
+    input[type="range"] {
       width: 100%;
     }
-    button, .deep-toggle {
-      margin-top: 1.2rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      background: #FFD700;
-      color: #000;
+
+    button {
+      background-color: #FFD700;
       border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
       border-radius: 8px;
       font-weight: bold;
-      cursor: pointer;
     }
-    #mantra {
-  margin-top: 6rem;
-      margin-top: 2rem;
+
+    canvas {
+      display: block;
+      margin: 50px auto 30px;
+      background: transparent;
+    }
+
+    #output {
+      margin-top: 20px;
       font-style: italic;
-      opacity: 0.9;
-      transition: all 0.5s ease;
+      color: #ffed8b;
+      font-size: 1.1em;
     }
-    #sigilCanvas {
-  position: relative;
-  top: auto;
-  margin: 1.5rem auto;
-  display: block;
-  z-index: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 2;
-      animation: glowFadeIn 4s ease forwards;
-      opacity: 0;
-    }
-    .deep {
-      background: #111;
-    }
-    .deep #mantra {
-  margin-top: 6rem;
-      font-family: "Papyrus", cursive;
-      color: #FFDDEE;
-      text-shadow: 0 0 5px #FFDDEE;
-    }
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-    @keyframes glowFadeIn {
-      to { opacity: 1; }
+
+    #deepModeToggle {
+      margin-bottom: 40px;
     }
   </style>
 </head>
 <body>
   <h1>Inner Weather</h1>
-  <div class="slider-container" id="sliders"></div>
+  <div class="slider-container" id="sliders">
+    <div class="slider-box"><label>joy</label><input type="range" min="0" max="100" value="50" id="joy" /></div>
+    <div class="slider-box"><label>grief</label><input type="range" min="0" max="100" value="50" id="grief" /></div>
+    <div class="slider-box"><label>anxiety</label><input type="range" min="0" max="100" value="50" id="anxiety" /></div>
+    <div class="slider-box"><label>desire</label><input type="range" min="0" max="100" value="50" id="desire" /></div>
+    <div class="slider-box"><label>love</label><input type="range" min="0" max="100" value="50" id="love" /></div>
+    <div class="slider-box"><label>anger</label><input type="range" min="0" max="100" value="50" id="anger" /></div>
+    <div class="slider-box"><label>wonder</label><input type="range" min="0" max="100" value="50" id="wonder" /></div>
+    <div class="slider-box"><label>emptiness</label><input type="range" min="0" max="100" value="50" id="emptiness" /></div>
+    <div class="slider-box"><label>clarity</label><input type="range" min="0" max="100" value="50" id="clarity" /></div>
+    <div class="slider-box"><label>longing</label><input type="range" min="0" max="100" value="50" id="longing" /></div>
+    <div class="slider-box"><label>shame</label><input type="range" min="0" max="100" value="50" id="shame" /></div>
+    <div class="slider-box"><label>peace</label><input type="range" min="0" max="100" value="50" id="peace" /></div>
+  </div>
+
   <button onclick="generateWeather()">Generate Weather</button>
   <button onclick="resetSliders()">Reset</button>
-  <button class="deep-toggle" onclick="toggleDeepMode()">Toggle Deep Mode</button>
-  <div id="mantra"></div>
+  <br />
+  <button id="deepModeToggle" onclick="toggleDeepMode()">Toggle Deep Mode</button>
+
+  <div id="output"></div>
+
   <canvas id="sigilCanvas" width="300" height="300"></canvas>
-  
 
   <script>
-    const emotions = [
-      "joy", "grief", "anxiety", "desire", "love", "anger",
-      "wonder", "emptiness", "clarity", "longing", "shame", "peace"
-    ];
-    const deepModeTone = new Tone.Player("https://cdn.pixabay.com/download/audio/2022/03/15/audio_98fd730ce8.mp3?filename=deep-ambient-109088.mp3").toDestination();
-    let deepMode = false;
-
-    const sliderContainer = document.getElementById("sliders");
-    emotions.forEach(emotion => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "slider-box";
-      wrapper.innerHTML = `
-        <label>${emotion}</label>
-        <input type="range" min="0" max="100" value="50" id="${emotion}" />
-      `;
-      sliderContainer.appendChild(wrapper);
-    });
-
-    function toggleDeepMode() {
-      deepMode = !deepMode;
-      document.body.classList.toggle("deep", deepMode);
-      if (deepMode) {
-        Tone.start();
-        deepModeTone.loop = true;
-        deepModeTone.autostart = true;
-        deepModeTone.start();
-      } else {
-        deepModeTone.stop();
-      }
-    }
+    const emotions = ["joy", "grief", "anxiety", "desire", "love", "anger", "wonder", "emptiness", "clarity", "longing", "shame", "peace"];
+    const canvas = document.getElementById("sigilCanvas");
+    const ctx = canvas.getContext("2d");
 
     function generateWeather() {
-      const values = {};
-      emotions.forEach(emotion => {
-        const val = parseInt(document.getElementById(emotion).value);
-        values[emotion] = val;
+      const selected = emotions.filter(e => document.getElementById(e).value > 70);
+      const symbols = ["❤", "✴️", "❄️", "✨", "🌕", "⚡", "🌊", "☁️", "❤️‍🔥", "🌀", "🕊️", "🪐"];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 100;
+      selected.forEach((e, i) => {
+        const angle = (2 * Math.PI / selected.length) * i;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        ctx.font = "24px serif";
+        ctx.fillText(symbols[i % symbols.length], x, y);
       });
-      drawSigil(values);
-      generateMantra(values);
+      document.getElementById("output").innerText = selected.length > 0 ?
+        `You are moved by ${selected.join(", ")}.` : "You are still, like calm water.";
     }
 
     function resetSliders() {
-      emotions.forEach(emotion => {
-        document.getElementById(emotion).value = 50;
-      });
-      document.getElementById("mantra").textContent = "";
-      const ctx = document.getElementById("sigilCanvas").getContext("2d");
-      ctx.clearRect(0, 0, 300, 300);
+      emotions.forEach(e => document.getElementById(e).value = 50);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById("output").innerText = "";
     }
 
-    function generateMantra(values) {
-      const highs = Object.entries(values).filter(([_, v]) => v > 60).map(([e]) => e);
-      const lows = Object.entries(values).filter(([_, v]) => v < 40).map(([e]) => e);
-      let line = "";
-
-      if (highs.length && lows.length) {
-        line = `You are held in the space between ${highs.join(", ")} and ${lows.join(", ")}.`;
-      } else if (highs.length) {
-        line = `You are moved by ${highs.join(", ")}.`;
-      } else if (lows.length) {
-        line = `You are resting beneath ${lows.join(", ")}.`;
-      } else {
-        line = "You are in a space of stillness.";
-      }
-
-      document.getElementById("mantra").textContent = line;
-    }
-
-    function drawSigil(emotions) {
-      const canvas = document.getElementById("sigilCanvas");
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, 300, 300);
-      const cx = 150, cy = 150;
-      const actives = Object.entries(emotions).filter(([_, v]) => v > 60);
-      const count = actives.length;
-      const radius = 80;
-      const step = (Math.PI * 2) / count;
-      ctx.strokeStyle = "#FFD700";
-      ctx.beginPath();
-      for (let i = 0; i < count; i++) {
-        const angle = step * i;
-        const x = cx + Math.cos(angle) * radius;
-        const y = cy + Math.sin(angle) * radius;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-
-      const emojiMap = {
-        joy: "☀️", grief: "💧", anxiety: "⚡", desire: "🔥", love: "💗", anger: "🔺",
-        wonder: "🌠", emptiness: "🕳️", clarity: "🧭", longing: "🌙", shame: "🩸", peace: "🕊️"
-      };
-
-      ctx.font = "20px serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      actives.forEach(([emotion], i) => {
-        const angle = i * step - Math.PI / 2;
-        const x = cx + Math.cos(angle) * (radius + 25);
-        const y = cy + Math.sin(angle) * (radius + 25);
-        ctx.fillText(emojiMap[emotion] || "◯", x, y);
-      });
+    function toggleDeepMode() {
+      document.body.classList.toggle("deep");
     }
   </script>
 </body>
