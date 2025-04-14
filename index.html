@@ -22,9 +22,12 @@
       font-family: 'Verdana', sans-serif;
       text-align: center;
       overflow: hidden;
+      transition: background 1.5s ease;
     }
     h1 {
       margin-top: 2rem;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
     }
     .slider-container {
       display: grid;
@@ -33,6 +36,9 @@
       padding: 1rem;
       max-width: 700px;
       margin: 0 auto;
+      opacity: 0;
+      animation: fadeIn 3s ease forwards;
+      animation-delay: 2s;
     }
     .slider-box {
       background: rgba(255, 215, 0, 0.1);
@@ -47,7 +53,7 @@
     .slider-box input[type="range"] {
       width: 100%;
     }
-    button {
+    button, .deep-toggle {
       margin-top: 1.2rem;
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
@@ -62,14 +68,31 @@
       margin-top: 2rem;
       font-style: italic;
       opacity: 0.9;
+      transition: all 0.5s ease;
     }
-    canvas {
+    #sigilCanvas {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
       z-index: 2;
+      animation: glowFadeIn 4s ease forwards;
+      opacity: 0;
+    }
+    .deep {
+      background: #111;
+    }
+    .deep #mantra {
+      font-family: "Papyrus", cursive;
+      color: #FFDDEE;
+      text-shadow: 0 0 5px #FFDDEE;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    @keyframes glowFadeIn {
+      to { opacity: 1; }
     }
   </style>
 </head>
@@ -78,6 +101,7 @@
   <div class="slider-container" id="sliders"></div>
   <button onclick="generateWeather()">Generate Weather</button>
   <button onclick="resetSliders()">Reset</button>
+  <button class="deep-toggle" onclick="toggleDeepMode()">Toggle Deep Mode</button>
   <div id="mantra"></div>
   <canvas id="sigilCanvas" width="300" height="300"></canvas>
 
@@ -86,8 +110,8 @@
       "joy", "grief", "anxiety", "desire", "love", "anger",
       "wonder", "emptiness", "clarity", "longing", "shame", "peace"
     ];
-
-    const sliderValues = {};
+    const deepModeTone = new Tone.Player("https://cdn.pixabay.com/download/audio/2022/03/15/audio_98fd730ce8.mp3?filename=deep-ambient-109088.mp3").toDestination();
+    let deepMode = false;
 
     const sliderContainer = document.getElementById("sliders");
     emotions.forEach(emotion => {
@@ -99,6 +123,19 @@
       `;
       sliderContainer.appendChild(wrapper);
     });
+
+    function toggleDeepMode() {
+      deepMode = !deepMode;
+      document.body.classList.toggle("deep", deepMode);
+      if (deepMode) {
+        Tone.start();
+        deepModeTone.loop = true;
+        deepModeTone.autostart = true;
+        deepModeTone.start();
+      } else {
+        deepModeTone.stop();
+      }
+    }
 
     function generateWeather() {
       const values = {};
