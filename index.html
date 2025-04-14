@@ -16,6 +16,10 @@
       text-align: center;
     }
 
+    body.deep {
+      background: #0a0a0a;
+    }
+
     h1 {
       font-size: 2.5em;
       margin: 1em 0 0.5em;
@@ -68,6 +72,11 @@
       font-size: 1.1em;
     }
 
+    body.deep #output {
+      color: #FFDDEE;
+      text-shadow: 0 0 4px #FFDDEE;
+    }
+
     #deepModeToggle {
       margin-bottom: 40px;
     }
@@ -108,9 +117,31 @@
       const selected = emotions.filter(e => document.getElementById(e).value > 70);
       const symbols = ["❤", "✴️", "❄️", "✨", "🌕", "⚡", "🌊", "☁️", "❤️‍🔥", "🌀", "🕊️", "🪐"];
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Sigil lines
+      ctx.strokeStyle = "#FFD700";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const radius = 100;
+      const points = [];
+
+      selected.forEach((e, i) => {
+        const angle = (2 * Math.PI / selected.length) * i;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        points.push([x, y]);
+      });
+
+      points.forEach(([x, y], i) => {
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      if (points.length > 2) ctx.closePath();
+      ctx.stroke();
+
+      // Symbols
       selected.forEach((e, i) => {
         const angle = (2 * Math.PI / selected.length) * i;
         const x = centerX + radius * Math.cos(angle);
@@ -118,6 +149,7 @@
         ctx.font = "24px serif";
         ctx.fillText(symbols[i % symbols.length], x, y);
       });
+
       document.getElementById("output").innerText = selected.length > 0 ?
         `You are moved by ${selected.join(", ")}.` : "You are still, like calm water.";
     }
