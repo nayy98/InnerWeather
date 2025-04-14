@@ -72,7 +72,10 @@
       transition: all 0.5s ease;
     }
     #sigilCanvas {
-  top: 85%;
+  position: relative;
+  top: auto;
+  margin: 2rem auto 1rem auto;
+  display: block;
       position: absolute;
       top: 50%;
       left: 50%;
@@ -105,8 +108,9 @@
   <button onclick="generateWeather()">Generate Weather</button>
   <button onclick="resetSliders()">Reset</button>
   <button class="deep-toggle" onclick="toggleDeepMode()">Toggle Deep Mode</button>
-  <div id="mantra"></div>
   <canvas id="sigilCanvas" width="300" height="300"></canvas>
+  <div id="mantra"></div>
+  
 
   <script>
     const emotions = [
