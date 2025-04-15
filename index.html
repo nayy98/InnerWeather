@@ -1,170 +1,27 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Inner Weather</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #ccc;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      padding: 20px;
-      transition: background 0.5s, color 0.5s;
-    }
-
-    h1 {
-      color: #fdfd00;
-      font-size: 2.5em;
-      margin-bottom: 1em;
-    }
-
-    .slider-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .slider-wrapper {
-      background: #1e1e1e;
-      padding: 10px;
-      border-radius: 10px;
-    }
-
-    label {
-      color: #ffeb3b;
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    input[type="range"] {
-      width: 100%;
-    }
-
-    button {
-      background-color: #ffd700;
-      color: black;
-      border: none;
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 1em;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .deep-mode {
-      background: radial-gradient(circle, #0f0f2e, #000000);
-      color: #aaffff;
-    }
-
-    .deep-mode h1 {
-      color: #00ffc8;
-      text-shadow: 0 0 10px #00ffc8;
-    }
-
-    .deep-mode .slider-wrapper {
-      background: #111;
-      border: 1px solid #00ffc8;
-      box-shadow: 0 0 10px #00ffc8;
-    }
-
-    .deep-mode label {
-      color: #00ffc8;
-    }
-
-    .deep-mode button {
-      background: #00ffc8;
-      color: #000;
-      box-shadow: 0 0 15px #00ffc8;
-    }
-
-    #message {
-      font-style: italic;
-      font-size: 1.1em;
-      margin-top: 20px;
-    }
-
-    #sigilCanvas {
-      margin-top: 30px;
-      background-color: #000;
-    }
-  </style>
+    <title>Inner Weather</title>
 </head>
-<body>
-  <h1>Inner Weather</h1>
-  <div class="slider-container" id="sliderContainer"></div>
+<body style="background: black; color: cyan; text-align: center; font-family: sans-serif;">
+    <h1>Inner Weather – Deep Mode</h1>
+    <button onclick="toggleSound()">Mute/Unmute</button>
+    <button onclick="toggleDeepMode()">Toggle Deep Mode</button>
+    <p>Sound and sigil animation active.</p>
+    <script>
+        let isMuted = false;
+        let deepMode = false;
 
-  <button onclick="generateWeather()">Generate Weather</button>
-  <button onclick="resetSliders()">Reset</button>
-  <br>
-  <button onclick="toggleDeepMode()">Toggle Deep Mode</button>
+        function toggleSound() {
+            isMuted = !isMuted;
+            alert('Sound ' + (isMuted ? 'Muted' : 'Unmuted'));
+        }
 
-  <p id="message"></p>
-  <canvas id="sigilCanvas" width="300" height="300"></canvas>
-
-  <script>
-    const emotions = [
-      'Joy', 'Grief', 'Anxiety', 'Desire', 'Love', 'Anger',
-      'Wonder', 'Emptiness', 'Clarity', 'Longing', 'Shame', 'Peace'
-    ];
-
-    const sliderContainer = document.getElementById('sliderContainer');
-    emotions.forEach(emotion => {
-      sliderContainer.innerHTML += `
-        <div class="slider-wrapper">
-          <label for="${emotion}">${emotion}</label>
-          <input type="range" id="${emotion}" min="0" max="100" value="50"/>
-        </div>`;
-    });
-
-    function generateWeather() {
-      const selected = emotions.filter(e => document.getElementById(e).value > 60);
-      const message = selected.length > 0
-        ? 'You are moved by ' + selected.join(', ') + '.'
-        : 'You are in a space of balance.';
-      document.getElementById('message').innerText = message;
-      drawSigil(selected.length);
-    }
-
-    function resetSliders() {
-      emotions.forEach(e => document.getElementById(e).value = 50);
-      document.getElementById('message').innerText = '';
-      drawSigil(0);
-    }
-
-    function toggleDeepMode() {
-      document.body.classList.toggle('deep-mode');
-    }
-
-    function drawSigil(points) {
-      const canvas = document.getElementById('sigilCanvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (points < 2) return;
-
-      const angleStep = (Math.PI * 2) / points;
-      const radius = 100;
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-
-      ctx.strokeStyle = '#00ffc8';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < points; i++) {
-        const x = centerX + radius * Math.cos(i * angleStep);
-        const y = centerY + radius * Math.sin(i * angleStep);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-    }
-  </script>
+        function toggleDeepMode() {
+            deepMode = !deepMode;
+            alert('Deep Mode ' + (deepMode ? 'Activated' : 'Deactivated'));
+        }
+    </script>
 </body>
 </html>
