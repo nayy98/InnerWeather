@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inner Weather</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Inner Weather</h1>
+    <div class="sliders" id="sliders">
+        <!-- Sliders will be injected here -->
+    </div>
+    <div class="buttons">
+        <button onclick="generateWeather()">Generate Weather</button>
+        <button onclick="resetSliders()">Reset</button>
+        <button onclick="toggleDeepMode()">Toggle Deep Mode</button>
+        <button onclick="toggleMute()">Mute / Unmute</button>
+    </div>
+    <p id="weather-output">Your emotional weather will appear here...</p>
+    <canvas id="sigilCanvas"></canvas>
+    <audio id="ambientAudio" loop>
+        <source src="ambient.mp3" type="audio/mpeg">
+    </audio>
+    <script src="main.js"></script>
+</body>
+</html>
