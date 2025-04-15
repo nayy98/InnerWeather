@@ -1,0 +1,1 @@
+// JavaScript for Inner Weather functionality
