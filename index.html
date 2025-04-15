@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inner Weather</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Inner Weather</h1>
+  <div id="sliders"></div>
+  <div class="buttons">
+    <button onclick="generateWeather()">Generate Weather</button>
+    <button onclick="resetSliders()">Reset</button>
+    <button onclick="toggleDeepMode()">Toggle Deep Mode</button>
+    <button id="muteButton">Mute / Unmute</button>
+  </div>
+  <p id="result"></p>
+  <canvas id="sigil" width="300" height="300"></canvas>
+  <audio id="background-audio" loop>
+    <source src="ambient.mp3" type="audio/mpeg">
+  </audio>
+  <script src="main.js"></script>
+</body>
+</html>
