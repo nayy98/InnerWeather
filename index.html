@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inner Weather</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #0ff;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2.5em;
+      text-shadow: 0 0 10px #0ff;
+    }
+    .slider-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .emotion-slider {
+      background: #111;
+      border: 2px solid #0ff;
+      border-radius: 10px;
+      padding: 10px;
+      width: 150px;
+      box-shadow: 0 0 8px #0ff;
+    }
+    .emotion-slider input[type=range] {
+      width: 100%;
+    }
+    button {
+      background: #0ff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 10px;
+      margin: 10px;
+      box-shadow: 0 0 10px #0ff;
+      cursor: pointer;
+    }
+    #output {
+      font-style: italic;
+      margin-top: 20px;
+    }
+    canvas {
+      display: block;
+      margin: 30px auto;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Inner Weather</h1>
+  <div class="slider-container" id="sliders"></div>
+  <button onclick="generateWeather()">Generate Weather</button>
+  <button onclick="resetSliders()">Reset</button>
+  <button onclick="toggleDeepMode()">Toggle Deep Mode</button>
+  <button onclick="toggleMute()">Mute/Unmute</button>
+  <div id="output">Your inner weather will appear here...</div>
+  <canvas id="sigilCanvas" width="300" height="300"></canvas>
+
+  <audio id="backgroundAudio" loop>
+    <source src="sounds/sample.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    const emotions = [
+      "Joy", "Grief", "Anxiety", "Desire", "Love", "Anger",
+      "Wonder", "Emptiness", "Clarity", "Longing", "Shame", "Peace"
+    ];
+
+    const slidersContainer = document.getElementById("sliders");
+
+    emotions.forEach(emotion => {
+      const div = document.createElement("div");
+      div.className = "emotion-slider";
+      div.innerHTML = \`
+        <label>\${emotion}</label><br>
+        <input type="range" min="0" max="100" value="50" id="\${emotion.toLowerCase()}">
+      \`;
+      slidersContainer.appendChild(div);
+    });
+
+    function generateWeather() {
+      const activeEmotions = emotions.filter(e => {
+        const val = document.getElementById(e.toLowerCase()).value;
+        return val > 70;
+      });
+      document.getElementById("output").innerText =
+        activeEmotions.length
+          ? "You are moved by " + activeEmotions.join(", ") + "."
+          : "You are in balance.";
+      drawSigil(activeEmotions.length);
+    }
+
+    function resetSliders() {
+      emotions.forEach(e => {
+        document.getElementById(e.toLowerCase()).value = 50;
+      });
+      document.getElementById("output").innerText = "Your inner weather will appear here...";
+      drawSigil(0);
+    }
+
+    let deepMode = false;
+    function toggleDeepMode() {
+      deepMode = !deepMode;
+      document.body.style.backgroundColor = deepMode ? "#0a0a0a" : "#000";
+      document.body.style.color = deepMode ? "#ff0" : "#0ff";
+    }
+
+    let muted = false;
+    const audio = document.getElementById("backgroundAudio");
+    audio.volume = 0.3;
+    audio.play();
+
+    function toggleMute() {
+      muted = !muted;
+      audio.muted = muted;
+    }
+
+    const canvas = document.getElementById("sigilCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function drawSigil(points) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (points === 0) return;
+      const angle = (2 * Math.PI) / points;
+      const radius = 100;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      ctx.strokeStyle = "#0ff";
+      ctx.beginPath();
+      for (let i = 0; i < points; i++) {
+        const x = centerX + radius * Math.cos(i * angle);
+        const y = centerY + radius * Math.sin(i * angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    drawSigil(0);
+  </script>
+</body>
+</html>
